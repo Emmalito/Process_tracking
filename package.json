@@ -1,0 +1,35 @@
+{
+  "name": "process_tracking",
+  "version": "1.0.0",
+  "description": "Implementation of a process tracking via smart contract on Ethereum Blockchain",
+  "main": "compile.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha  --openssl-legacy-provider"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Emmalito/Process_tracking.git"
+  },
+  "keywords": [
+    "Smart",
+    "contract;",
+    "Process",
+    "tracking;",
+    "Ethereum;"
+  ],
+  "author": "Emmalito",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Emmalito/Process_tracking/issues"
+  },
+  "homepage": "https://github.com/Emmalito/Process_tracking#readme",
+  "dependencies": {
+    "ganache-cli": "^6.12.2",
+    "mocha": "^10.0.0",
+    "solc": "^0.8.15",
+    "web3": "^1.7.4"
+  }
+}
