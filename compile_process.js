@@ -17,7 +17,7 @@ const input = {
     settings: {
       outputSelection: {
         '*': {
-          '*': ['*'],
+          '*': ['*']
         },
       },
     },
