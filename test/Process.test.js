@@ -9,25 +9,25 @@ let accounts;
 let process;
 
 
-beforeEach( async() => {
-    accounts = await web3.eth.getAccounts();
-
-    process = await new web3.eth.Contract(abi)
-        .deploy({ data: evm.bytecode.object, arguments: [accounts[1], accounts[2]]})
-        .send({ from: accounts[0], gas: 3000000});
-
-    await process.methods.addResource(0, 150, "Eau")
-        .send({from: accounts[1], gas: 1500000 });
-    await process.methods.addResource(1, 150, "Travail")
-        .send({from: accounts[1], gas: 1500000 });
-    await process.methods.addResource(2, 150, "Plastique")
-        .send({from: accounts[1], gas: 1500000 });
-    await process.methods.addOutput([0,1], [40, 100], 50, "Bouteille")
-        .send({from: accounts[1], gas: 1500000 });
-});
-
-
 describe("Contract Process", () => {
+
+    beforeEach( async() => {
+        accounts = await web3.eth.getAccounts();
+    
+        process = await new web3.eth.Contract(abi)
+            .deploy({ data: evm.bytecode.object, arguments: [accounts[1], accounts[2]]})
+            .send({ from: accounts[0], gas: 3000000});
+    
+        await process.methods.addResource(0, 150, "Eau")
+            .send({from: accounts[1], gas: 1500000 });
+        await process.methods.addResource(1, 150, "Travail")
+            .send({from: accounts[1], gas: 1500000 });
+        await process.methods.addResource(2, 150, "Plastique")
+            .send({from: accounts[1], gas: 1500000 });
+        await process.methods.addOutput([0,1], [40, 100], 50, "Bouteille")
+            .send({from: accounts[1], gas: 1500000 });
+    });
+    
     describe("Good deployment", () =>{
         it("Deployed", ()=>{
             assert.ok(process.options.address);
