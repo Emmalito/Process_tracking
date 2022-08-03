@@ -14,7 +14,7 @@ contract Process_Tracking {
 
     //Method
     function addFactory(address factory) public returns (address){
-        require(msg.sender == manager);
+        require(msg.sender == manager, "Only the manager");
         factories[factory] = true;
         Process process = new Process(factory, address(this));
         processes[factory] = address(process);
@@ -44,7 +44,7 @@ contract Process{
     address private process_tracking;
     mapping(uint => Information) public inputs;
     mapping(uint => Output) public outputs;
-    uint id;
+    uint private id;
 
     //Modifier
     modifier restricted(){
@@ -65,6 +65,14 @@ contract Process{
         process_tracking = tracking;
         id = 1000;
     }
+
+
+
+    //Accessor
+    function getOutputItem(uint _id) public view returns (uint[] memory, uint[] memory){
+        return (outputs[_id].inputs, outputs[_id].inputsQuantities);
+    }
+
 
 
     //Methods
@@ -91,12 +99,12 @@ contract Process{
     }
 
     function addOutput(uint[] memory _inputs, uint[] memory _quantities,
-    uint _quantity, string memory _name) public restricted
+    uint _quantity, string memory _name) public restricted returns(uint)
     {
         require(_inputs.length == _quantities.length, "Not enougth arguments in the list");
         Output storage output = outputs[id];
         for(uint idx=0; idx <_inputs.length; idx++){
-            require(inputs[_inputs[idx]].quantity >= _quantities[idx]);
+            require(inputs[_inputs[idx]].quantity >= _quantities[idx], "Not enougth quantity in the stock");
             inputs[_inputs[idx]].quantity -= _quantities[idx];
             output.inputs.push(_inputs[idx]);
             output.inputsQuantities.push(_quantities[idx]);
@@ -104,6 +112,7 @@ contract Process{
         output.quantity = _quantity;
         output.name = _name; 
         id += 1;
+        return id - 1;
     }
 
     function sendOutput(uint _id, uint _quantity, address _addr) public restricted{
