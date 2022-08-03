@@ -4,7 +4,7 @@ const fs = require('fs');      // File System
 const solc = require('solc');
 
 
-const directoryPath = path.resolve(__dirname, 'contracts', 'tracking_process.sol');  // Get the path of the lottery.sol file
+const directoryPath = path.resolve(__dirname, 'contracts', 'Process_tracking.sol');  // Get the path of the lottery.sol file
 const source = fs.readFileSync(directoryPath, 'utf8');
 
 const input = {
