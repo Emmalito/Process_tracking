@@ -1,43 +1,50 @@
 pragma solidity ^0.8.15;
 
 
-contract Tracking_Process {
+contract Process_Tracking {
     address public manager;
     mapping(address => bool) public factories;
     mapping(address => address) public processes;
 
+    //Constructor
     constructor(){
         manager = msg.sender;
     }
 
-    function addFactory(address factory) public {
+
+    //Method
+    function addFactory(address factory) public returns (address){
         require(msg.sender == manager);
         factories[factory] = true;
-    }
-
-    function createTracker() public returns (address) {
-        require(factories[msg.sender]);
-        Process process = new Process(msg.sender, address(this));
-        processes[msg.sender] = address(process);
+        Process process = new Process(factory, address(this));
+        processes[factory] = address(process);
         return address(process);
     }
 }
 
+
+
 contract Process{
-    //Structures
+     //Structures
     struct Information{
-        uint units;
+        uint quantity;
         string name;
-        string origin;
+        address origin;
+    }
+
+    struct Output{
+        uint[] inputs;
+        uint[] inputsQuantities;
+        string name;
+        uint quantity;
     }
 
     //Fields
     address public factory;
-    address private tracking_process;
-    Information[] public inputs;
-    Information[] public resources;
-    Information[] public outputs;
-    mapping(string => uint) public countOutput;
+    address private process_tracking;
+    mapping(uint => Information) public inputs;
+    mapping(uint => Output) public outputs;
+    uint id;
 
     //Modifier
     modifier restricted(){
@@ -46,7 +53,7 @@ contract Process{
     }
 
     modifier protected() {
-        Tracking_Process master = Tracking_Process(tracking_process);
+        Process_Tracking master = Process_Tracking(process_tracking);
         require(master.factories(tx.origin), "You don't have access to this function");
         _;
     }
@@ -55,68 +62,54 @@ contract Process{
     //Constructor
     constructor(address Factory, address tracking){
         factory = Factory;
-        tracking_process = tracking;
+        process_tracking = tracking;
+        id = 1000;
     }
 
 
     //Methods
-    function addInput(uint _units, string memory _name, string memory _origin) public protected{
-        Information memory newInput = Information({
-            units: _units,
-            name: _name,
-            origin: _origin
-        });
-
-        inputs.push(newInput);
-    }
-
-    function addResource(uint _units, string memory _name, string memory _origin) public restricted{
-        Information memory newResource = Information({
-            units: _units,
-            name: _name,
-            origin: _origin
-        });
-        
-        resources.push(newResource);
-    }
-
-    function addOutput(uint _units, string memory _name, string memory _origin) public restricted{
-        Information memory newOutput = Information({
-            units: _units,
-            name: _name,
-            origin: _origin
-        });
-        
-        outputs.push(newOutput);
-        countOutput[_name] = _units;
-    }
-
-    function sendOutput(uint _units, string memory _name, string memory _origin,
-                        address _addr) public restricted
+    function addInput(uint _id, uint _quantity, address _origin,
+    string memory _name) public protected
     {
-        require(countOutput[_name] >= _units);
-        countOutput[_name] -= _units;
-        Process(_addr).addInput(_units, _name, _origin);
+        require(inputs[_id].quantity == 0, "This id is already used");
+        inputs[_id] = Information({
+            quantity: _quantity,
+            name: _name,
+            origin: _origin
+        });
+    }
+
+    function addResource(uint _id, uint _quantity,
+    string memory _name) public restricted
+    {
+        require(inputs[_id].quantity == 0, "This id is already used");
+        inputs[_id] = Information({
+            quantity: _quantity,
+            name: _name,
+            origin: address(this)
+        });
+    }
+
+    function addOutput(uint[] memory _inputs, uint[] memory _quantities,
+    uint _quantity, string memory _name) public restricted
+    {
+        require(_inputs.length == _quantities.length, "Not enougth arguments in the list");
+        Output storage output = outputs[id];
+        for(uint idx=0; idx <_inputs.length; idx++){
+            require(inputs[_inputs[idx]].quantity >= _quantities[idx]);
+            inputs[_inputs[idx]].quantity -= _quantities[idx];
+            output.inputs.push(_inputs[idx]);
+            output.inputsQuantities.push(_quantities[idx]);
+        }
+        output.quantity = _quantity;
+        output.name = _name; 
+        id += 1;
+    }
+
+    function sendOutput(uint _id, uint _quantity, address _addr) public restricted{
+        Output storage output = outputs[_id];
+        require(output.quantity >= _quantity, "Not enougth quantity in the stock");
+        output.quantity -= _quantity;
+        Process(_addr).addInput(_id, _quantity, address(this), output.name);
     }
 }
-
-    /*struct Livraison{
-        string transporterName;
-        address receiver;
-        mapping(string => uint) cargaison;
-        uint expeditionDate;
-        uint livraisonDate;
-    }*/
-
-
-    /*Livraison[] transport;
-
-    /*function sendOutputs(string memory transporterName, string memory name,
-                        uint quantity, address receiver) public restricted
-    {
-        Livraison storage livraison = transport.push();
-        livraison.transporterName = transporterName;
-        livraison.receiver = receiver;
-        livraison.expeditionDate = block.timestamp;
-        livraison.cargaison[name] = quantity;
-    }*/
