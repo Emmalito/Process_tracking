@@ -110,7 +110,7 @@ contract Process{
             output.inputsQuantities.push(_quantities[idx]);
         }
         output.quantity = _quantity;
-        output.name = _name; 
+        output.name = _name;
         id += 1;
         return id - 1;
     }
