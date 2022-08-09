@@ -2,8 +2,7 @@ const assert = require("assert");
 const ganache = require("ganache-cli");
 const Web3 = require("web3");
 const web3 = new Web3(ganache.provider());
-
-const {abi, evm} = require("../compile_process");
+const compiledProcess = require("../ethereum/build/Process.json");
 
 let accounts;
 let process;
@@ -13,11 +12,11 @@ describe("Contract Process", () => {
 
     beforeEach( async() => {
         accounts = await web3.eth.getAccounts();
-    
-        process = await new web3.eth.Contract(abi)
-            .deploy({ data: evm.bytecode.object, arguments: [accounts[1], accounts[2]]})
+
+        process = await new web3.eth.Contract(compiledProcess.abi)
+            .deploy({ data: compiledProcess.evm.bytecode.object, arguments: [accounts[1], accounts[2]]})
             .send({ from: accounts[0], gas: 3000000});
-    
+
         await process.methods.addResource(0, 150, "Eau")
             .send({from: accounts[1], gas: 1500000 });
         await process.methods.addResource(1, 150, "Travail")
@@ -27,7 +26,7 @@ describe("Contract Process", () => {
         await process.methods.addOutput([0,1], [40, 100], 50, "Bouteille")
             .send({from: accounts[1], gas: 1500000 });
     });
-    
+
     describe("Good deployment", () =>{
         it("Deployed", ()=>{
             assert.ok(process.options.address);
@@ -45,7 +44,7 @@ describe("Contract Process", () => {
         it("Try addOutput and getOutputItem", async () =>{
             var output = await process.methods.outputs(1000).call();
             var outputItems = await process.methods.getOutputItem(1000).call();
-            
+
             assert.equal(output.name, "Bouteille");
             assert.equal(output.quantity, 50);
             assert.equal(outputItems['0'][0], '0');
@@ -130,7 +129,7 @@ describe("Contract Process", () => {
         });
 
         it("Try require in sendOutput", async () =>{
-            
+
             try {
                 await process.methods.sendOutput(1000, 55, accounts[3])
                     .send({from: accounts[1], gas: 1500000 });

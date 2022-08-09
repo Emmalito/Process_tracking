@@ -2,8 +2,7 @@ const assert = require("assert");
 const ganache = require("ganache-cli");
 const Web3 = require("web3");
 const web3 = new Web3(ganache.provider());
-
-const {abi, evm} = require("../compile_tracking");
+const compiledProcess = require("../ethereum/build/Process_Tracking.json");
 
 let accounts;
 let tracking;
@@ -12,9 +11,9 @@ let tracking;
 describe("Process tracking contract", () => {
     beforeEach( async() => {
         accounts = await web3.eth.getAccounts();
-    
-        tracking = await new web3.eth.Contract(abi)
-            .deploy({ data: evm.bytecode.object})
+
+        tracking = await new web3.eth.Contract(compiledProcess.abi)
+            .deploy({ data: compiledProcess.evm.bytecode.object})
             .send({ from: accounts[0], gas: 3000000});
     });
 

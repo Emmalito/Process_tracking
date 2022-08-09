@@ -1,7 +1,7 @@
 const HDWalletProvide = require('@truffle/hdwallet-provider');
 const Web3 = require('web3');
 const readline = require('readline');
-const {abi, evm} = require('./compile_tracking');
+const compiledProcess = require("../ethereum/build/Process_Tracking.json");
 
 
 
@@ -11,11 +11,11 @@ const deploy = async(mnemonic) => {
         "https://rinkeby.infura.io/v3/5e0b1b98ecb640c796f7c68f39d6a3ea");
     const web3 = new Web3(provider);
 
-    const accounts = await web3.eth.getAccounts(); 
+    const accounts = await web3.eth.getAccounts();
     console.log("Attempting to deploy contract on account ", accounts[0]);
-    
-    const receipe = await new web3.eth.Contract(abi)
-        .deploy({data: evm.bytecode.object})
+
+    const receipe = await new web3.eth.Contract(compiledProcess.abi)
+        .deploy({data: compiledProcess.evm.bytecode.object})
         .send({from: accounts[0], gas: '3000000'});
 
     console.log(receipe);

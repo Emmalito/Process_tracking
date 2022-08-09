@@ -26,9 +26,11 @@ To run the project, make sure you have **Nodejs** **16.13.0** and **npm 8.1.0** 
 
 The project folder has the folliwing arborescence:
 
-- contracts/: Folder that contains the solidity code sources
+- ethereum/: Folder that contains all sub folder that interact with the Blockchain
+  - build/: Folder that contains the solidity compiled code
+  - contracts/: Folder that contains the solidity code sources
+  - compile.js: Code source that compile and store the solidity files
+  - deploy.js: Module which deploy the contract on the Rinkeby testnet
 - test/: Directory of JavaScript test files
-- compile.js: Code source for compiling the solidity files
-- deploy.js: Module which deploy the contract on the Rinkeby testnet
 - package.json: File of the project structure and dependances
 - README.md

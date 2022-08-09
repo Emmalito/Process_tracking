@@ -3,8 +3,8 @@ const ganache = require("ganache-cli");
 const Web3 = require("web3");
 const web3 = new Web3(ganache.provider());
 
-const {abi, evm} = require("../compile_tracking");
-const Process = require("../compile_process");
+const compiledPT = require("../ethereum/build/Process_Tracking.json");
+const Process = require("../ethereum/build/Process.json");
 
 let accounts;
 let manager;
@@ -15,11 +15,11 @@ let process2;
 describe("Interaction between the contracts", () => {
     beforeEach( async() => {
         accounts = await web3.eth.getAccounts();
-    
-        manager = await new web3.eth.Contract(abi)
-            .deploy({ data: evm.bytecode.object})
+
+        manager = await new web3.eth.Contract(compiledPT.abi)
+            .deploy({ data: compiledPT.evm.bytecode.object})
             .send({ from: accounts[0], gas: 3000000});
-        
+
         await manager.methods.addFactory(accounts[1])
             .send({from: accounts[0], gas: 3000000 });
         await manager.methods.addFactory(accounts[2])
@@ -75,7 +75,7 @@ describe("Interaction between the contracts", () => {
             const process3 = await new web3.eth.Contract(Process.abi)
                 .deploy({ data: Process.evm.bytecode.object, arguments: [accounts[3], accounts[5]]})
                 .send({ from: accounts[3], gas: 3000000});
-            
+
             await process3.methods.addResource(0, 150, "Eau")
                 .send({from: accounts[3], gas: 1500000 });
             await process3.methods.addResource(1, 150, "Travail")
@@ -84,7 +84,7 @@ describe("Interaction between the contracts", () => {
                 .send({from: accounts[3], gas: 1500000 });
             await process3.methods.addOutput([0,1], [40, 100], 50, "Bouteille")
                 .send({from: accounts[3], gas: 1500000 });
-            
+
             try {
                 await process1.methods.sendOutput(1000, 30, process2.options.address)
                     .send({from: accounts[3], gas: 1500000 });
